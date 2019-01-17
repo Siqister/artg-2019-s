@@ -2,36 +2,125 @@ const migrationDataPromise = d3.csv('../data/un-migration/Table 1-Table 1.csv', 
 	.then(data => data.reduce((acc,v) => acc.concat(v), []));
 const countryCodePromise = d3.csv('../data/un-migration/ANNEX-Table 1.csv', parseCountryCode)
 	.then(data => new Map(data));
+const metadataPromise = d3.csv('../data/country-metadata.csv', parseMetadata);
 
+// Configuration variables
+const W = 280;
+const H = 208;
+const margin = {t:48, r:32, b:64, l:64};
 
-/* 
- * DATA DISCOVERY
- */
+Promise.all([
+		migrationDataPromise,
+		countryCodePromise,
+		metadataPromise
+	]).then(([migration, countryCode, metadata]) => {
 
-// Convert metadata into a map, with ISO_num as the key
-// Then console.log the metadata map and observe its structure
+		// Data transformation
+		// Join migration with countryCode
+		let data = migration.map(d => {
+			d.origin_code = countryCode.get(d.origin_name);
+			d.dest_code = countryCode.get(d.dest_name);
+			return d;
+		});
 
-// console.log countryCode map and observe its structure
+		// Convert metadata to a map
+		let tmpMetadata = metadata.map(d => {
+			return [d.iso_num, d]
+		});
+		const metadataMap = new Map(tmpMetadata);
 
-// For the migration dataset, how many years does it cover? How many origin countries? How many destination countries?
+		// Finally, join migration data to subregion
+		data = data.map(d => {
+			d.origin_subregion = metadataMap.get(d.origin_code)?metadataMap.get(d.origin_code).subregion:undefined;
+			d.dest_subregion = metadataMap.get(d.dest_code)?metadataMap.get(d.dest_code).subregion:undefined;
+			return d;
+		});
 
-// Let's filter this the migration dataset
-// How many people from the U.S. lived in Japan in the year 1995?
+		// Migration by origin subregion, by year
+		const migrationByOriginSubregion = d3.nest()
+			.key(d => d.origin_subregion)
+			.key(d => d.year)
+			.rollup(xs => d3.sum(xs, d => d.value))
+			.entries(data);
 
-// How many people from the U.S. lived abroad in the year 1995?
+		const migrationByDestSubregion = d3.nest()
+			.key(d => d.dest_subregion)
+			.key(d => d.year)
+			.rollup(xs => d3.sum(xs, d => d.value))
+			.entries(data);
 
-// How many people from the U.S. lived aborad in all the years in the dataset?
+		console.log(migrationByDestSubregion);
 
-// How many people from abroad lived in the U.S. in all the years in the dataset?
+		// Draw / representation
+		d3.select('.main')
+			.selectAll('.module')
+			.data(migrationByDestSubregion)
+			.enter()
+			.append('div')
+			.attr('class', 'module')
+			.style('width', `${W}px`)
+			.style('height', `${H}px`)
+			.each(function(d){
+				renderLineChart(this, d.values, d.key);
+			});
 
-/* 
- * DATA TRANSFORMATION
- */
-// Join the migration dataset with countryCode
+	});
 
-// Further join the dataset with region and subregion
+function renderLineChart(rootDom, data, key){
+	
+	const w = W - margin.l - margin.r;
+	const h = H - margin.t - margin.b;
 
-// Nest/group data by subregion, and produce time-series data for each subregion
+	const scaleX = d3.scaleLinear().domain([1985,2020]).range([0, w]);
+	const scaleY = d3.scaleLinear().domain([0, 20000000]).range([h,0]);
+
+	const lineGenerator = d3.line()
+		.x(d => scaleX(+d.key))
+		.y(d => scaleY(d.value));
+	const areaGenerator = d3.area()
+		.x(d => scaleX(+d.key))
+		.y0(h)
+		.y1(d => scaleY(d.value));
+	const axisXGenerator = d3.axisBottom()
+		.scale(scaleX)
+		.tickValues([1990, 2000, 2010, 2017])
+		.tickFormat(d => "'" + String(d).slice(-2))
+	const axisYGenerator = d3.axisLeft()
+		.scale(scaleY)
+		.tickSize(-w)
+		.ticks(4)
+		.tickFormat(d => d/1000 + 'k')
+
+	// Drawing
+	const plot = d3.select(rootDom)
+		.append('svg')
+		.attr('width', W)
+		.attr('height', H)
+		.append('g')
+		.attr('transform', `translate(${margin.l}, ${margin.t})`);
+	//Line and area <path> elements
+	plot.append('path').attr('class','area')
+		.datum(data)
+		.attr('d', areaGenerator)
+		.attr('fill-opacity', 0.05);
+	plot.append('path').attr('class','line')
+		.datum(data)
+		.attr('d', lineGenerator)
+		.attr('fill', 'none')
+		.attr('stroke', '#333')
+		.attr('stroke-width', '2px');
+	//Axes
+	plot.append('g').attr('class','axis axis-bottom')
+		.attr('transform', `translate(0, ${h})`)
+		.call(axisXGenerator);
+	plot.append('g').attr('class','axis axis-left')
+		.call(axisYGenerator);
+	//Label
+	d3.select(rootDom)
+		.append('p').attr('class', 'label')
+		.html(key)
+
+}
 
 
 
@@ -61,6 +150,7 @@ function parseMigrationData(d){
 
 	const migrationFlows = [];
 	const dest_name = d['Major area, region, country or area of destination'];
+	if(!dest_name) return [];
 	const year = +d.Year
 	
 	delete d.Year;
