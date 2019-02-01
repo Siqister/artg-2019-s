@@ -1,0 +1,36 @@
+html,body,div{
+	margin:0;
+	padding:0;
+}
+
+.main{
+	width:960px;
+	margin:auto;
+}
+
+.nav{
+	height:144px;
+	padding:32px 0;
+}
+
+/* Font */
+.country-view h1{
+	font-size:3.75rem;
+	line-height:1.2;
+	font-weight: bold;
+}
+.chart h3{
+	font-size:0.75rem;
+	line-height:1.33333;
+}
+
+/* Line chart module */
+.line-chart .axis .domain{
+	display: none;
+}
+.line-chart .axis .tick line{
+	stroke-opacity: 0.2;
+}
+.line-chart .axis .tick text{
+	fill: #333;
+}
