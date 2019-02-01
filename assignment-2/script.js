@@ -51,7 +51,10 @@ Promise.all([
 		})
 
 		//REPRESENT
-		drawCartogram(d3.select('.cartogram').node(), migration_by_origin_country);
+		drawCartogram(
+			d3.select('.cartogram').node(), 
+			migration_by_origin_country
+		);
 
 	})
 
@@ -105,6 +108,7 @@ function drawCartogram(rootDom, data){
 		.style('stroke-opacity', .2)
 	nodes.merge(nodesEnter)
 		.select('text')
+		.attr('y', d => -scaleSize(d.value))
 		.filter(d => d.value > 1000000)
 		.text(d => d.name_display)
 		.style('font-family', 'sans-serif')
