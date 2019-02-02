@@ -2,11 +2,8 @@ import * as d3 from 'd3';
 
 function lineChart(data, key, rootDOM){
 
-	//data
-	//[{}, {}, {}...]x7
-
-	const W = 320;
-	const H = 240;
+	const W = 240;
+	const H = 196;
 	const margin = {t:32, r:32, b:64, l:64};
 	const innerWidth = W - margin.l - margin.r;
 	const innerHeight = H - margin.t - margin.b;

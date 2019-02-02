@@ -50,7 +50,7 @@ Promise.all([
 		//-- <select> element
 		const menu = select('.nav')
 			.append('select')
-			.attr('class', 'form-control form-control-md');
+			.attr('class', 'form-control form-control-sm');
 		menu.selectAll('option')
 			.data(countries)
 			.enter()
