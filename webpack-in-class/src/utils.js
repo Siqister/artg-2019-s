@@ -1,3 +1,5 @@
+import {nest, sum} from 'd3';
+
 //Utility functions for parsing metadata, migration data, and country code
 function parseMetadata(d){
 	return {
@@ -52,4 +54,18 @@ function parseMigrationData(d){
 	return migrationFlows;
 }
 
-export {parseMetadata, parseCountryCode, parseMigrationData}
+function filterAndNest(data, filterBy, ...nestBy){
+	//filter data
+	let _data = data.filter(filterBy);
+
+	//Create nesting function
+	let nestFunc = nest();
+	nestBy.forEach(n => {
+		nestFunc = nestFunc.key(n);
+	});
+	nestFunc = nestFunc.rollup(values => sum(values, d => d.value));
+
+	return nestFunc.entries(_data);
+}
+
+export {parseMetadata, parseCountryCode, parseMigrationData, filterAndNest}

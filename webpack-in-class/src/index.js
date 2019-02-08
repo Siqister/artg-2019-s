@@ -6,9 +6,40 @@ import {
 	countryCodePromise,
 	metadataPromise
 } from './data';
-import lineChart from './modules/LineChart';
+import {
+	filterAndNest
+} from './utils';
+import LineChart from './modules/LineChart';
 
-import {nest, sum, select, event} from 'd3';
+import {nest, sum, select, event, max, dispatch} from 'd3';
+
+//Initiate modules
+//Menu module
+const menu = select('.nav')
+	.append('select')
+	.attr('class', 'form-control form-control-sm');
+//Title module
+const title = select('.country-view')
+	.insert('h1', '.chart-container');
+//line chart mdule
+const lineChart = LineChart();
+lineChart
+	.on('select:year', year => globalDispatch.call('update:year', null, year))	
+	.on('mouseleave', () => lineChart.unHighlight());
+
+//Global event dispatch
+const globalDispatch = dispatch(
+	'update:countryList',
+	'update:country',
+	'update:data',
+	'update:year',
+);
+globalDispatch.on('update:countryList', updateMenu);
+globalDispatch.on('update:country', updateTitle);
+globalDispatch.on('update:data', updateCharts);
+globalDispatch.on('update:year', year => {
+	lineChart.highlightYear(year);
+});
 
 Promise.all([
 		mergedMigrationPromise,
@@ -32,79 +63,77 @@ Promise.all([
 
 			return d;
 		});
-
-		//-- Filter by country of origin
-		let data = migrationAugmented;
-
-		//-- Nest by subregion of destination
-		data = nest()
-			.key(d => d.dest_subregion)
-			.key(d => d.year)
-			.rollup(values => sum(values, d => d.value))
-			.entries(data);
-
+		//-- Filter and nest
+		const data = filterAndNest(
+				migrationAugmented,
+				d => true,
+				d => d.dest_subregion,
+				d => d.year
+			);
 		//-- Unique list of countries
 		const countries = Array.from(countryCodeMap.entries());
 
-		//HYDRATE VIEW MODULES WITH DATA
-		//-- <select> element
-		const menu = select('.nav')
-			.append('select')
-			.attr('class', 'form-control form-control-sm');
-		menu.selectAll('option')
-			.data(countries)
-			.enter()
-			.append('option')
-			.attr('value', d => d[1])
-			.html(d => d[0]);
-
-		//-- title <h1>
-		const title = select('.country-view')
-			.insert('h1', '.chart-container')
-			.html('World');
-
-		//-- line charts
-		updateCharts(data);
+		//Emit events
+		globalDispatch.call('update:countryList', null, countries);
+		globalDispatch.call('update:country', null, 'World');
+		globalDispatch.call('update:data', null, data);
 
 		//EVENTS
 		menu.on('change', function(){
 
 			const idx = this.selectedIndex;
 			const countryCode = this.value;
+			const countryName = this.options[idx].innerHTML;
+			const data = filterAndNest(
+					migrationAugmented,
+					d => d.origin_code  === countryCode,
+					d => d.dest_subregion,
+					d => d.year
+				);
 
-			//Update title
-			title.html(this.options[idx].innerHTML);
+			globalDispatch.call('update:country', null, countryName);
+			globalDispatch.call('update:data', null, data);
 
-			//Perform data filtering and nesting operation again
-			data = migrationAugmented.filter(d => d.origin_code === countryCode);
-			data = nest()
-				.key(d => d.dest_subregion)
-				.key(d => d.year)
-				.rollup(values => sum(values, d => d.value))
-				.entries(data);
-
-			updateCharts(data);
-
-		})
+		});
 
 	});
 
-function updateCharts(data){
+function updateMenu(data){
+	const options = menu.selectAll('option')
+		.data(data, d => d[1]);
+	const optionsEnter = options.enter()
+		.append('option');
+	options.merge(optionsEnter)
+		.attr('value', d => d[1])
+		.html(d => d[0]);
+}
 
-		const charts = select('.chart-container')
-			.selectAll('.chart')
-			.data(data, d => d.key);
-		const chartsEnter = charts.enter()
-			.append('div')
-			.attr('class','chart');
-		charts.merge(chartsEnter)
-			.each(function(d){
-				lineChart(
-					d.values,
-					d.key,
-					this
-				);
-			});
-		charts.exit().remove();
+function updateTitle(data){
+	title.html(data);
+}
+
+function updateCharts(data){
+	//Last bit of data discovery: find rangeY from data
+	const maxY = max(data.map(subregion => max(subregion.values, d => d.value)));
+
+	//Reconfigure line chart
+	lineChart.rangeY([0, maxY]);
+
+	const charts = select('.chart-container')
+		.selectAll('.chart')
+		.data(data, d => d.key);
+	const chartsEnter = charts.enter()
+		.append('div')
+		.attr('class','chart');
+	charts.merge(chartsEnter)
+		.each(function(d,idx){
+			lineChart(
+				d.values,
+				d.key,
+				idx,
+				this
+			);
+		});
+	charts.exit().remove();
 
 }
