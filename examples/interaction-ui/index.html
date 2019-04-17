@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel='stylesheet' href='./style.css' />
+	</head>
+	<body>
+<!-- 		Layout using bootstrap default:
+		- "container" centers and horizontally pads contents
+		- "row" is a wrapper for columns
+		- grid colomns, with classes such as ".col-sm", are children of "rows". You can either specify number of columns or, if they are not specified, columns subdivide rows equally -->
+		<div class='container'>
+			<h1 class='mb-4'>UI elements</h1>
+			<h2 class='mb-3'>Simple layout and UI elements with Bootstrap</h2>
+			<div class='row'>
+				<div class='col-sm'>
+					<h3>Typography</h3>
+					<p class='lead'>Make a paragraph stand out by adding .lead</p>
+					<p>Here is a regular paragraph. There are options for <mark>built-in highlight</mark> and <em>italicized text</em>, among other options.</p>
+					<h4>Setting margin and padding</h4>
+					<p>Bootstrap provides <a href='https://getbootstrap.com/docs/4.3/utilities/spacing/'>utility classes</a> for setting responsive-friendly margin and padding</p>
+				</div>
+				<div class='col-sm-6'>
+					<h3>Components</h3>
+					<section class='component-section' id='button'>
+						<h4>Buttons</h4>
+						<p class='lead'>How to use Bootstrap's custom button styles</p>
+						<p>Apply <code>.btn</code> class to <code>&lt;a&gt;</code>, <code>&lt;button&gt;</code>, or <code>&lt;input&gt;</code></p>
+						<a class='btn btn-primary' href='#' role='button'>Link</a>
+						<a class='btn btn-outline-primary' href='#' role='button'>Outline button</a>
+					</section>
+					<section class='component-section' id='button-group'>
+						<h4>Button groups</h4>
+						<div class="btn-group" role="group" aria-label="Basic example">
+						  <button type="button" class="btn btn-secondary">Left</button>
+						  <button type="button" class="btn btn-secondary">Middle</button>
+						  <button type="button" class="btn btn-secondary">Right</button>
+						</div>
+					</section>
+					<section class='component-section' id='form'>
+						<h4>Form elements</h4>
+						<p>Form elements including <code>&lt;input&gt;</code>, <code>&lt;select&gt;</code>, and <code>&lt;textarea&gt;</code> can be styled with the the <code>.form-control</code> class, which provides styling for general appearance, focus state, sizing, and more.</p>
+						<div class='form-group'>
+							<label for='input-1'>Text input</label>
+							<input type='text' class='form-control' id='input-1' placeholder='Placeholder text' />
+						</div>
+						<div class='form-group'>
+							<label for='input-2'>Select</label>
+							<select class='form-control' id='input-2'>
+								<option value='value-1'>First option</option>
+								<option value='value-2'>Second option</option>
+							</select>
+						</div>
+						<div class='form-group'>
+							<label for='input-3'>Input group</label>
+							<div class='input-group'>
+								<div class='input-group-prepend'>
+									<span class='input-group-text'>User name</span> 
+								</div>
+								<input type='text' class='form-control' id='input-3' placeholder='Placeholder text'/>
+							</div>
+						</div>
+					</section>
+					<section class='component-section' id='radio'>
+						<h4>Checks and radio buttons</h4>
+						<p>Default checkboxes and radios are improved with <code>.form-check</code> class, which improves the layout and behavior of their HTML elements.</p>
+						<p><em>Checkboxes</em> are for selecting one or several options in a list, while <em>radios</em> are for selecting one option from many</p>
+						<div class='form-check'>
+							<input class='form-check-input' type='checkbox' value='' id='checkbox-1'>
+							<label class='form-check-label' for='checkbox-1'>Checkbox 1</label>
+						</div>
+						<h4>Radio buttons</h4>
+						<p>See example radio button below. Note that these radio button options share a common <code>name</code> attribute, which makes selection among them exclusive.</p>
+							<div class="form-check">
+							  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+							  <label class="form-check-label" for="exampleRadios1">
+							    Default radio
+							  </label>
+							</div>
+							<div class="form-check">
+							  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+							  <label class="form-check-label" for="exampleRadios2">
+							    Second default radio
+							  </label>
+							</div>
+					</section>
+				</div>
+				<div class='col-sm'>
+					<h3>See output of UI elements here</h3>
+					<p id='ui-output-1'></p>
+				</div>
+			</div>
+
+			<h3>Range slider example</h3>
+			<div class='row'>
+				<div class='col-sm-8'>
+					<div class='range-slider-container'></div>
+				</div>
+				<div class='col-sm-4'></div>
+			</div>
+
+			<h3>Form example</h3>
+			<p>Multiple input elements can be grouped into a single form element</p>
+			<form class='custom-form'>
+				<div class='form-group'>
+			    <label for="exampleInputEmail1">Email address</label>
+			    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name='email'>
+			    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+				</div>
+			  <div class="form-group">
+			    <label for="exampleInputPassword1">Password</label>
+			    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name='password'>
+			  </div>
+			  <div class="form-check">
+			    <input type="checkbox" class="form-check-input" id="exampleCheck1" name='check'>
+			    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+			  </div>
+			  <button type="submit" class="btn btn-primary">Submit</button>
+			</form>
+
+		</div>
+
+		<script src='../../lib/d3/d3.js'></script>
+		<script src='script.js'></script>
+	</body>
+</html>
