@@ -9,7 +9,7 @@ export default function layoutControls(rootDom, layoutOptions, dispatch){
 	options.exit().remove();
 	options = options.enter()
 		.append('button')
-		.attr('class', 'option btn btn-light')
+		.attr('class', 'option btn btn-dark')
 		.html(d => d)
 		.merge(options);
 

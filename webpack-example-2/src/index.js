@@ -11,6 +11,7 @@ import * as d3 from 'd3'
 import dataPromise from './data';
 import layoutControls from './modules/layoutControls';
 import colorControls from './modules/colorControls';
+import RangeSlider from './modules/RangeSlider';
 import ForceGraph from './modules/forceGraph';
 
 // Create global dispatch object
@@ -18,10 +19,11 @@ import ForceGraph from './modules/forceGraph';
 // It can even be passed into individual modules!
 const globalDispatch = d3.dispatch(
 		'layout:change', 
-		'color:change'
+		'color:change',
+		'slider:range:change'
 	);
 
-// Render layoutControls and colorControls modules
+// Render layoutControls, colorControls, and RangeSlider modules
 // These don't depend on "live" data so can be rendered first
 layoutControls(
 		d3.select('.layout-control').node(),
@@ -35,6 +37,16 @@ colorControls(
 		globalDispatch
 	);
 
+const slider = RangeSlider()
+	.values([1,2,3,4,5,6])
+	.on('change', value => {
+		globalDispatch.call('slider:range:change', null, value);
+	});
+d3.select('.slider').call(slider);
+
+
+// Create an instance of a forceGraph module from ForceGraph factory
+// Will call this later with live data
 const forceGraph = ForceGraph();
 
 // Inspect the content of dataPromise
@@ -51,9 +63,11 @@ dataPromise.then(data => {
 	globalDispatch.on('layout:change', layoutOption => {
 		forceGraph.updateLayout(layoutOption);
 	});
-
 	globalDispatch.on('color:change', colorOption => {
 		forceGraph.updateColor(colorOption);
+	});
+	globalDispatch.on('slider:range:change', value => {
+		forceGraph.updateRange(value);
 	});
 });
 

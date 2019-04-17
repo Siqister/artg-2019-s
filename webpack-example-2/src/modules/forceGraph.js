@@ -103,6 +103,17 @@ function ForceGraph(){
 	
 	}
 
+	exports.updateRange = function(value){
+
+		nodes
+			.select('circle')
+			.style('stroke', 'none') // reset all the stroke to none
+		  .filter(d => d.value <= value) // filter for only those nodes with matching values
+			.style('stroke', '#666')
+			.style('stroke-width', '2px');
+
+	}
+
 	return exports;
 
 }
