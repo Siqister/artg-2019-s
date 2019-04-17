@@ -10,8 +10,8 @@ import * as d3 from 'd3'
 // Import individual modules
 import dataPromise from './data';
 import layoutControls from './modules/layoutControls';
-import colorControls from './modules/layoutControls';
-import forceGraph from './modules/forceGraph';
+import colorControls from './modules/colorControls';
+import ForceGraph from './modules/forceGraph';
 
 // Create global dispatch object
 // It is responsible for managing interaction and communication among modules
@@ -35,6 +35,8 @@ colorControls(
 		globalDispatch
 	);
 
+const forceGraph = ForceGraph();
+
 // Inspect the content of dataPromise
 dataPromise.then(data => console.log(data));
 
@@ -44,5 +46,14 @@ dataPromise.then(data => {
 			d3.select('.main-viz').node(),
 			data
 		);
+
+	// Global dispatch receives event information
+	globalDispatch.on('layout:change', layoutOption => {
+		forceGraph.updateLayout(layoutOption);
+	});
+
+	globalDispatch.on('color:change', colorOption => {
+		forceGraph.updateColor(colorOption);
+	});
 });
 

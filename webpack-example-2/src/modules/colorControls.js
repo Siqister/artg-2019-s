@@ -1,11 +1,11 @@
 import {select} from 'd3';
 
-export default function colorControls(rootDom, layoutOptions, dispatch){
+export default function colorControls(rootDom, colorOptions, dispatch){
 
-	// render buttons under rootDom, based on layoutOptions
+	// render buttons under rootDom, based on colorOptions
 	// use enter-exit-update pattern
 	let options = select(rootDom).selectAll('.option')
-		.data(layoutOptions);
+		.data(colorOptions);
 	options.exit().remove();
 	options = options.enter()
 		.append('button')
